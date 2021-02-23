@@ -6,7 +6,7 @@ To assign processes to workers, the buffer is first checked to find any availabl
 In main_loop(), we busy wait and loop through each of the processes in children_processes and jobs in shmPTR_jobs_buffer to check their status.
 The event that a free worker is found is stored by the variable empty. The status of the child process is stored in the variable alive.
 
-If the job status is 0 (i.e. shmPTR_jobs_buffer[i].taskstatus == 0), and the child process is alive, the child can be assined a new process, and the main loop is exited. 
+If the job status is 0 `shmPTR_jobs_buffer[i].taskstatus == 0`, and the child process is alive, the child can be assined a new process, and the main loop is exited. 
 
 Otherwise, if the child is not alive (i.e. alive != 0), then the worker must be revived in order for it to accept any new processes. This is done using fork() and job_dispatch().
 
