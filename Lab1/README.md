@@ -14,4 +14,8 @@ Otherwise, if the child is not alive (i.e. alive != 0), then the worker must be 
 
 
 ### Legally Terminate Active Worker Processes
-In order to legally terminate all the workers that are still alive, a simple but effective approach was used. I started with traversing through each process and check whether their status is 0; ie: if they are free and not taken up by any job. If they are, then 'shmPTR_jobs_buffer[i].task_type = 'z'(I assigned z to it), to make sure that the specific worker process was legally terminated. A counter variable was used, initialized to 0 at start and incremements after killing each process, it returns true and breaks the loop if the counter equals the number of all processes, ensuring that it has traversed through all processes alive.
+To legally terminate all active worker processes, we iterate through all the child processes in `children_processes` and check its `task_status` and child process status (stored in the variable `alive`). The variable `death_count` counts the number of children processes that have successfully terminated. 
+
+In the termination loop, if the child process is dead, increase `death_count` by one and continue iterating through the list of children. If the child process is alive and still running a process, continue looping and wait for the child to finish it's task and check it's status in the next loop cycle. If the child process is alive and has no active tasks, assign it a z task and change its status.
+
+The loop exits when all the processes are dead ( `death_count == number_of_processes`).

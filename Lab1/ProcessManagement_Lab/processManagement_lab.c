@@ -277,9 +277,9 @@ void main_loop(char *fileName)
     // 2. If dead/running, do nothing. If no tasks, assign a z task.
     // 3. Keep checking all processes until each has a z task or is dead.
 
-    int z_count = 0;
+    int death_count = 0;
 
-    while (z_count != number_of_processes)
+    while (death_count != number_of_processes)
     {
 
         for (int i = 0; i < number_of_processes; i++)
@@ -288,10 +288,15 @@ void main_loop(char *fileName)
             job child = shmPTR_jobs_buffer[i];
             int alive = waitpid(children_processes[i], &status, WNOHANG);
 
-            if (child.task_status != 0 && alive != 0)
+            if (child.task_status != 0 && alive == 0)
             {
-                // child is dead or still running
+                // child is still running
                 continue;
+            }
+            else if (alive == 1)
+            {
+                // child is dead
+                death_count++;
             }
             else if (child.task_status == 0 && alive == 0)
             {
@@ -303,14 +308,14 @@ void main_loop(char *fileName)
             }
         }
 
-        if (z_count == number_of_processes)
+        if (death_count == number_of_processes)
         {
             // all children terminated
             goto z_terminated;
         }
         else
         {
-            z_count = 0;
+            death_count = 0;
         }
     }
 
